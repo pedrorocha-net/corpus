@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+  <title>Corpus Bot</title>
+  <link rel="stylesheet" href="/styles.css"/>
+  <script
+    src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script type="text/javascript">
+
+    function createDivPromise() {
+      return new Promise(function (resolve, reject) {
+        $.get('/config', function (data) {
+          const wrapperDiv = document.createElement('div');
+          wrapperDiv.className = 'wrapper';
+
+          const botkitDiv = document.createElement('div');
+          botkitDiv.className = 'sub-wrapper';
+
+          const poweredBy = document.createElement('p');
+          const text = document.createTextNode('Powered by ');
+          poweredBy.appendChild(text);
+
+          const botkitLink = document.createElement('a');
+          const url = document.createTextNode('Botkit');
+          botkitLink.appendChild(url);
+          botkitLink.href = 'https://botkit.ai/';
+          botkitLink.title = 'Botkit';
+
+          poweredBy.appendChild(botkitLink);
+          botkitDiv.appendChild(poweredBy);
+
+          const fbSendToMessengerDiv = document.createElement('div');
+          fbSendToMessengerDiv.className = 'fb-send-to-messenger';
+          fbSendToMessengerDiv.setAttribute('data-ref', 'PASS_THROUGH_PARAM');
+          fbSendToMessengerDiv.setAttribute('color', 'blue');
+          fbSendToMessengerDiv.setAttribute('size', 'xlarge');
+          fbSendToMessengerDiv.setAttribute('messenger_app_id', data.appId);
+          fbSendToMessengerDiv.setAttribute('page_id', data.pageId);
+
+          wrapperDiv.appendChild(botkitDiv);
+          botkitDiv.appendChild(fbSendToMessengerDiv);
+          document.body.appendChild(wrapperDiv);
+
+          resolve(data);
+        });
+      });
+    }
+
+    createDivPromise().then(function (data) {
+      FB.init({
+        appId: data.appId,
+        xfbml: true,
+        version: "v2.9"
+      });
+      FB.Event.subscribe('send_to_messenger', function (e) {
+        if (e.event == 'clicked') {
+          window.location = 'success.html';
+        }
+      });
+    });
+
+    (function divConfig(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[1];
+      if (d.getElementById(id)) {
+        return;
+      }
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+  </script>
+</head>
+<body>
+</body>
+</html>
